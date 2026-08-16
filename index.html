@@ -149,6 +149,22 @@ const quarterData = [
   { quarter: 'Q1 2026', total: 129, 'В работе': 81, 'Успех': 17, 'Отказ': 31 },
 ];
 
+// Данные по неделям — для вкладки "Текущая неделя". Клиенты сгруппированы по дате первого касания.
+const weeklyClientsData = [
+  { week: "08.12-14.12.2025", clients: [{ org: "ООО \"ЛинкПринт\"", manager: "Пётр", stage: "Оплата получена", status: "Успех" }, { org: "ООО \"Инжстройбюро\" (АстраПрофиль)", manager: "Алексей", stage: "Оплата получена", status: "Успех" }, { org: "ООО \"Юнискаф\"", manager: "Пётр", stage: "КП отправлено", status: "В работе" }] },
+  { week: "15.12-21.12.2025", clients: [{ org: "ООО СофтКонд", manager: "Пётр", stage: "КП отправлено", status: "В работе" }, { org: "ООО «Климатические решения»", manager: "Алексей", stage: "КП отправлено", status: "В работе" }, { org: "ООО \"ПромКонд\"", manager: "Пётр", stage: "Оплата получена", status: "Успех" }, { org: "Климатические системы", manager: "Алексей", stage: "КП отправлено", status: "В работе" }, { org: "Климат by", manager: "Алексей", stage: "Лид", status: "В работе" }, { org: "ООО Металлстеллаж", manager: "Алексей", stage: "Выход ЛПР", status: "Отказ" }, { org: "ООО КБ МАХУС", manager: "Пётр", stage: "КП отправлено", status: "В работе" }, { org: "ООО ПромКреатив", manager: "Пётр", stage: "КП отправлено", status: "В работе" }] },
+  { week: "22.12-28.12.2025", clients: [{ org: "ООО \"Граф Пит\"", manager: "Алексей", stage: "Лид", status: "Отказ" }, { org: "ООО \"Юнифистел\"", manager: "Пётр", stage: "Ожидание заказ", status: "В работе" }, { org: "ООО «ЗробленаБай»", manager: "Алексей", stage: "КП отправлено", status: "В работе" }, { org: "ООО «СтальСтройИндустрия»", manager: "Пётр", stage: "Выход ЛПР", status: "Отказ" }, { org: "ЧП Кузнечный дворик", manager: "Алексей", stage: "КП отправлено", status: "В работе" }, { org: "ООО \"Сила стали\"", manager: "Пётр", stage: "КП отправлено", status: "В работе" }, { org: "\"Випметстрой\"", manager: "Алексей", stage: "КП отправлено", status: "Отказ" }, { org: "\"Skittor\"", manager: "Алексей", stage: "Выход ЛПР", status: "В работе" }, { org: "eliot-avto.by", manager: "Алексей", stage: "КП отправлено", status: "Отказ" }, { org: "su-181.by", manager: "Алексей", stage: "Ожидание заказ", status: "Отказ" }] },
+  { week: "05.01-11.01.2026", clients: [{ org: "СУ 181", manager: "Алексей", stage: "Ожидание заказ", status: "В работе" }, { org: "АйсиСвет", manager: "Алексей", stage: "Лид", status: "В работе" }, { org: "Струнные технологии", manager: "Алексей", stage: "Лид", status: "В работе" }, { org: "ПЕТР-ХАНЦ", manager: "Алексей", stage: "КП отправлено", status: "Отказ" }, { org: "ООО \"Мебель Холл\"", manager: "Пётр", stage: "КП отправлено", status: "В работе" }, { org: "Ротор Снаб", manager: "Алексей", stage: "Ожидание заказ", status: "В работе" }, { org: "МеталЛофт", manager: "Алексей", stage: "Ожидание заказ", status: "Отказ" }, { org: "ООО \"МебелиБайМ\"", manager: "Алексей", stage: "КП отправлено", status: "Отказ" }] },
+  { week: "12.01-18.01.2026", clients: [{ org: "Бурлуцкий А.С., ИП", manager: "Алексей", stage: "Лид", status: "Отказ" }, { org: "Nestandart.by", manager: "Пётр", stage: "Ожидание заказ", status: "Успех" }] },
+  { week: "19.01-25.01.2026", clients: [{ org: "Бикон", manager: "Алексей", stage: "Лид", status: "Отказ" }, { org: "Авхимович Олег (FR)", manager: "Алексей", stage: "Оплата получена", status: "Успех" }] },
+  { week: "26.01-01.02.2026", clients: [{ org: "Артметаллворк", manager: "Алексей", stage: "Лид", status: "Отказ" }, { org: "Гидротехсервис", manager: "Алексей", stage: "Ожидание заказ", status: "В работе" }, { org: "Гамма Компонент", manager: "Пётр", stage: "Оплата получена", status: "Успех" }, { org: "ООО \"Спортив\"", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "ИП Суша Александр Николаевич", manager: "Пётр", stage: "Лид", status: "Отказ" }] },
+  { week: "16.02-22.02.2026", clients: [{ org: "SPMK81", manager: "Вячеслав", stage: "Лид", status: "В работе" }, { org: "Строй свой мир", manager: "Вячеслав", stage: "КП отправлено", status: "В работе" }, { org: "Филини мебель", manager: "Пётр", stage: "КП отправлено", status: "Успех" }, { org: "Клен маркет", manager: "Пётр", stage: "КП отправлено", status: "В работе" }, { org: "ООО «Райфер»", manager: "Пётр", stage: "КП отправлено", status: "В работе" }, { org: "ООО \"Довиани\"", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "ООО «Кислородмонтаж-строй»", manager: "Пётр", stage: "КП отправлено", status: "В работе" }, { org: "Астрапрофиль", manager: "Пётр", stage: "КП отправлено", status: "Успех" }, { org: "ООО «ЛеоМаксГрупп»", manager: "Пётр", stage: "КП отправлено", status: "В работе" }, { org: "ООО Бессер-Бел", manager: "Вячеслав", stage: "Лид", status: "В работе" }, { org: "ООО \"ТРАДИко\"", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "«ОВТ инжиниринг»", manager: "Пётр", stage: "КП отправлено", status: "В работе" }, { org: "ООО «Гарвани»", manager: "Вячеслав", stage: "Лид", status: "В работе" }, { org: "ДТС Маркет", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "Окна CROWN", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "ОАО «Агат»", manager: "Пётр", stage: "Лид", status: "В работе" }, { org: "ООО «Технологии земледелия»", manager: "Пётр", stage: "Лид", status: "В работе" }, { org: "ЧП «Бринстон-плюс»", manager: "Вячеслав", stage: "Лид", status: "В работе" }, { org: "ООО \"ДСР ГРУПП\"", manager: "Пётр", stage: "КП отправлено", status: "В работе" }, { org: "ООО «СУ-83 Белстрой»", manager: "Вячеслав", stage: "Лид", status: "В работе" }, { org: "ООО \"Лаома\"", manager: "Пётр", stage: "Лид", status: "В работе" }, { org: "ЧУП «Неовижн плюс»", manager: "Пётр", stage: "Лид", status: "В работе" }, { org: "ООО \"АСК ТехниксБел\"", manager: "Пётр", stage: "Лид", status: "В работе" }, { org: "ИП Комаровский С.Н.", manager: "Вячеслав", stage: "Лид", status: "В работе" }, { org: "МИК Мебель ооо", manager: "Пётр", stage: "Лид", status: "В работе" }, { org: "Куницкий Владимир Николаевич", manager: "Дмитрий", stage: "Ожидание заказ", status: "В работе" }, { org: "ЗАО «Беспилотные летательные аппараты»", manager: "Пётр", stage: "Ожидание заказ", status: "Отказ" }, { org: "«БелХимПроект»", manager: "Дмитрий", stage: "Лид", status: "В работе" }, { org: "ООО \"ТАПАС\"", manager: "Пётр", stage: "Ожидание заказ", status: "В работе" }, { org: "ОАО «Минский домостроительный комбинат»", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "УКС Мингорисполкома", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "Мапид", manager: "Дмитрий", stage: "Лид", status: "В работе" }, { org: "Строминвест", manager: "Дмитрий", stage: "Выход ЛПР", status: "В работе" }, { org: "А 100", manager: "Дмитрий", stage: "Лид", status: "В работе" }, { org: "ЗАО \"Амкодор-Эластомер\"", manager: "Дмитрий", stage: "Лид", status: "В работе" }, { org: "ИП Захаревич Е. С.", manager: "Пётр", stage: "Ожидание заказ", status: "Отказ" }, { org: "Техстройресурс", manager: "Дмитрий", stage: "Лид", status: "В работе" }, { org: "СП \"СОФТФОРМ\" ООО", manager: "Пётр", stage: "Ожидание заказ", status: "Отказ" }, { org: "ЗАО «ГОЛОГРАФИЧЕСКАЯ ИНДУСТРИЯ»", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "TENGO", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "Адвис", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "ИП Немцев А. С.", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "ИП Цвирко Алексей Александрович", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "«ПромТоргСервис»", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "Макробестволен плюс", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "Тамира строй", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "Отис сервис", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "Гарантум", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "Промсталь", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "Белард логистик", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "Алькор Климат", manager: "Дмитрий", stage: "Лид", status: "В работе" }, { org: "ООО «РемАктивСервис»", manager: "Дмитрий", stage: "Лид", status: "В работе" }, { org: "Самсвязьстрой", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "А 1", manager: "—", stage: "Лид", status: "В работе" }, { org: "Баз Дор маш", manager: "Пётр", stage: "Лид", status: "В работе" }, { org: "Кипер Трейд", manager: "Пётр", stage: "Выход ЛПР", status: "Успех" }, { org: "\"МебельСоюзКонтакт\"", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "\"Полоцк-Стекловолокно\"", manager: "Пётр", stage: "Оплата получена", status: "Успех" }, { org: "Скантек Комфорт", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "Эстерна Медиа", manager: "—", stage: "Лид", status: "В работе" }, { org: "Стекломонтажстрой", manager: "Дмитрий", stage: "Лид", status: "В работе" }, { org: "ЧПУП «ВЛ - Групп»", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "КБ Беспилотные Вертолеты", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "ООО «М-Сатес»", manager: "Дмитрий", stage: "Лид", status: "В работе" }, { org: "ИП Горбачев Е.В.", manager: "—", stage: "Лид", status: "В работе" }, { org: "ЧУП «Биоэнергетика»", manager: "Пётр", stage: "Лид", status: "В работе" }, { org: "ООО \"Профи-Агропарк Групп\"", manager: "Пётр", stage: "Лид", status: "В работе" }, { org: "ФрамМеталл", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "ООО \"Дрим Дизайн\"", manager: "Пётр", stage: "Лид", status: "Отказ" }, { org: "«АГРООБОРУДОВАНИЕ»", manager: "Пётр", stage: "Лид", status: "Успех" }, { org: "ГидроТехСервис", manager: "—", stage: "Лид", status: "В работе" }, { org: "«ТехноГайд»", manager: "—", stage: "Лид", status: "В работе" }, { org: "ГИДРОМЕХАНИКА", manager: "—", stage: "Лид", status: "В работе" }, { org: "MF", manager: "Ольга", stage: "Лид", status: "Успех" }, { org: "ТЕХНОИНЖИНИРИНГГРУПП", manager: "—", stage: "Лид", status: "В работе" }, { org: "\"Гудбразерз\"", manager: "—", stage: "Лид", status: "В работе" }, { org: "ТСМ-ТехноПлюс", manager: "—", stage: "Лид", status: "В работе" }, { org: "«БЕЛАРСПРОММАШ»", manager: "—", stage: "Лид", status: "В работе" }, { org: "\"Фокси крафт\"", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "ООО Ипкон", manager: "Пётр", stage: "Ожидание заказ", status: "Успех" }, { org: "ООО \"ИГВИТТА\"", manager: "Пётр", stage: "Оплата получена", status: "Успех" }, { org: "Салюмита", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "Ливингстоун", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "«ЭРГОТЕХНИКА»", manager: "—", stage: "Лид", status: "В работе" }, { org: "«МИНИНВЕСТПРОМ»", manager: "—", stage: "Лид", status: "В работе" }, { org: "КУЗНЕЦОВ-МЕБЕЛЬ", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "«ПрофиСмарт»", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "Стайленд", manager: "Ольга", stage: "Лид", status: "Успех" }, { org: "ООО «ГидроСтан»", manager: "Ольга", stage: "Оплата получена", status: "Успех" }, { org: "АКВАПАК ИНДАСТРИАЛ", manager: "—", stage: "Лид", status: "В работе" }, { org: "ДТС-Маркет", manager: "—", stage: "Лид", status: "В работе" }, { org: "Конвейерные комплектующие", manager: "—", stage: "Лид", status: "В работе" }, { org: "«ГАРАНТ-М»", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "Нудлс", manager: "Ольга", stage: "Оплата получена", status: "Успех" }, { org: "Вуден Хаус Бел", manager: "—", stage: "Лид", status: "В работе" }] },
+  { week: "23.02-01.03.2026", clients: [{ org: "МОТОГАЛАКТИКА", manager: "Дмитрий", stage: "Лид", status: "В работе" }, { org: "БелCИ-ГП Автоматика", manager: "Дмитрий", stage: "Ожидание заказ", status: "В работе" }, { org: "Народны майстар", manager: "Пётр", stage: "Ожидание заказ", status: "Отказ" }, { org: "Стабиле", manager: "Дмитрий", stage: "Лид", status: "В работе" }, { org: "ООО «Белинвестторг»", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "\"МонолитИнжиниринг\"", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "Удобный офис", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "«Инфокусмедиа»", manager: "Ольга", stage: "Оплата получена", status: "Успех" }, { org: "Юниверсал Технолоджис", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "Про удобный офис", manager: "Ольга", stage: "Оплата получена", status: "Успех" }, { org: "РивенЛайн", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "АвтоМашКомплект", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "МК ПозитивМЕ", manager: "Ольга", stage: "Оплата получена", status: "Успех" }, { org: "Агрострой", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "\"Спецмостстрой\"", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "ООО \"МУРАЛ\"", manager: "Ольга", stage: "Лид", status: "В работе" }, { org: "Ремонтно-строительный трест", manager: "Ольга", stage: "Лид", status: "В работе" }] },
+];
+
+// Снепшот последней синхронизации — используется для сравнения при следующем обновлении
+const lastSnapshotDate = '16.08.2026';
+
 const calcData = [
   { name: 'Просчёт сделан', value: 46, color: '#4c8c5b' },
   { name: 'Просчёта нет', value: 87, color: '#c98a3e' },
@@ -274,6 +290,72 @@ function DealsTable({ deals, kind }) {
   );
 }
 
+function WeekView() {
+  const [weekIdx, setWeekIdx] = useState(weeklyClientsData.length - 1);
+  const week = weeklyClientsData[weekIdx];
+  const accentByStatus = { 'Успех': '#4c8c5b', 'Отказ': '#b04a3f', 'В работе': steel };
+
+  return (
+    <>
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
+        <div className="text-sm" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>НЕДЕЛЯ:</div>
+        <select
+          value={weekIdx}
+          onChange={e => setWeekIdx(Number(e.target.value))}
+          className="text-sm px-3 py-1.5 rounded-sm outline-none"
+          style={{ border: `1px solid ${line}`, background: 'white' }}
+        >
+          {weeklyClientsData.map((w, i) => (
+            <option key={i} value={i}>{w.week}{i === weeklyClientsData.length - 1 ? ' (последняя с данными)' : ''}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex gap-3 flex-wrap mb-4">
+        <KPI label="Новых клиентов за неделю" value={week.clients.length} />
+        <KPI label="Из них успех" value={week.clients.filter(c => c.status === 'Успех').length} accent="#4c8c5b" />
+        <KPI label="Из них отказ" value={week.clients.filter(c => c.status === 'Отказ').length} accent="#b04a3f" />
+      </div>
+
+      <Card className="p-5 mb-4">
+        <div className="text-sm mb-3" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>НОВЫЕ КЛИЕНТЫ ЭТОЙ НЕДЕЛИ ({week.week})</div>
+        <div className="overflow-auto" style={{ maxHeight: 420 }}>
+          <table className="w-full text-xs" style={{ borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${line}` }}>
+                <th className="text-left py-2 pr-3" style={{ color: '#8a8272', fontWeight: 500 }}>Компания</th>
+                <th className="text-left py-2 pr-3" style={{ color: '#8a8272', fontWeight: 500 }}>Менеджер</th>
+                <th className="text-left py-2 pr-3" style={{ color: '#8a8272', fontWeight: 500 }}>Этап на сегодня</th>
+                <th className="text-left py-2 pr-3" style={{ color: '#8a8272', fontWeight: 500 }}>Статус на сегодня</th>
+              </tr>
+            </thead>
+            <tbody>
+              {week.clients.map((c, i) => (
+                <tr key={i} style={{ borderBottom: `1px solid ${line}` }}>
+                  <td className="py-2 pr-3" style={{ fontWeight: 500 }}>{c.org}</td>
+                  <td className="py-2 pr-3">{c.manager}</td>
+                  <td className="py-2 pr-3">{c.stage}</td>
+                  <td className="py-2 pr-3" style={{ color: accentByStatus[c.status] || ink, fontWeight: 500 }}>{c.status}</td>
+                </tr>
+              ))}
+              {week.clients.length === 0 && (
+                <tr><td colSpan={4} className="py-4 text-center" style={{ color: '#8a8272' }}>Новых клиентов на этой неделе не было</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <Card className="p-5" style={{ background: '#fbf7ee' }}>
+        <div className="text-sm mb-2" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>СМЕНА СТАТУСОВ И КОММЕНТАРИЕВ (было → стало)</div>
+        <div className="text-sm" style={{ color: ink }}>
+          Этот блок пока пуст — для сравнения "было / стало" нужны минимум два снепшота таблицы в разные даты, а сейчас сохранён только один, от {lastSnapshotDate}. Как только придёт следующее обновление данных, здесь появится список: какие компании сменили статус, какие — комментарий, с текстом до и после.
+        </div>
+      </Card>
+    </>
+  );
+}
+
 function Dashboard() {
   const [tab, setTab] = useState('overview');
 
@@ -304,6 +386,7 @@ function Dashboard() {
             ['managers', 'Менеджеры'],
             ['deals', 'Успех / Отказ'],
             ['quarters', 'По кварталам'],
+            ['thisweek', 'Текущая неделя'],
           ].map(([key, label]) => (
             <button
               key={key}
@@ -586,6 +669,8 @@ function Dashboard() {
             </div>
           </>
         )}
+
+        {tab === 'thisweek' && <WeekView />}
 
         <div className="text-xs mt-6 pt-4 border-t" style={{ borderColor: line, color: '#8a8272' }}>
           Источник: Google Sheet «Воронка продаж TFC». Цифры пересчитаны на момент выгрузки — для автообновления нужен рабочий Google Drive/Sheets коннектор.
