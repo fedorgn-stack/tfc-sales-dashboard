@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TFC — Воронка продаж</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/prop-types@15/prop-types.min.js"></script>
+<script src="https://unpkg.com/recharts@2/umd/Recharts.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { margin: 0; }
+  ::-webkit-scrollbar { height: 6px; width: 6px; }
+  ::-webkit-scrollbar-thumb { background: #ddd6c8; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+
+const { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } = Recharts;
+const { useState, useMemo } = React;
+
+const stageData = [
+  { stage: 'Лид', count: 95 },
+  { stage: 'КП отправлено', count: 23 },
+  { stage: 'Ожидание заказа', count: 16 },
+  { stage: 'Выход на ЛПР', count: 5 },
+  { stage: 'Оплата получена', count: 12 },
+];
+
+const statusData = [
+  { name: 'В работе', value: 93, color: '#3b6e8f' },
+  { name: 'Отказ', value: 38, color: '#b04a3f' },
+  { name: 'Успех', value: 20, color: '#4c8c5b' },
+];
+
+const managerData = [
+  { manager: 'Пётр', 'В работе': 23, 'Успех': 11, 'Отказ': 27 },
+  { manager: 'Ольга', 'В работе': 22, 'Успех': 7, 'Отказ': 0 },
+  { manager: 'Алексей', 'В работе': 11, 'Успех': 2, 'Отказ': 11 },
+  { manager: 'Дмитрий', 'В работе': 14, 'Успех': 0, 'Отказ': 0 },
+  { manager: 'Вячеслав', 'В работе': 7, 'Успех': 0, 'Отказ': 0 },
+  { manager: 'Не указан', 'В работе': 16, 'Успех': 0, 'Отказ': 0 },
+];
+
+const channelData = [
+  { name: 'База', value: 94, color: '#7a6a53' },
+  { name: 'Самостоятельный поиск', value: 57, color: '#c98a3e' },
+];
+
+const weeklyFunnel = [
+  { week: '16.03-22.03', inFunnel: 126, newLeads: 0, toSuccess: 6, toReject: 18, calcs: 50, budget: 44565 },
+  { week: '23.03-29.03', inFunnel: 93, newLeads: 0, toSuccess: 3, toReject: 3, calcs: 20, budget: null },
+  { week: '30.03-05.04', inFunnel: 120, newLeads: 0, toSuccess: 0, toReject: 0, calcs: null, budget: null },
+  { week: '06.04-12.04', inFunnel: 120, newLeads: 0, toSuccess: 1, toReject: 0, calcs: null, budget: null },
+];
+
+// Новые лиды по неделям — посчитано по дате первого касания из детального списка сделок
+// (т.к. недельный сводный блок в самой таблице почти не заполняется)
+const newLeadsWeekly = [
+  { week: '08.12-14.12.25', count: 3 },
+  { week: '15.12-21.12.25', count: 8 },
+  { week: '22.12-28.12.25', count: 10 },
+  { week: '05.01-11.01.26', count: 8 },
+  { week: '12.01-18.01.26', count: 2 },
+  { week: '19.01-25.01.26', count: 2 },
+  { week: '26.01-01.02.26', count: 5 },
+  { week: '16.02-22.02.26', count: 95 },
+  { week: '23.02-01.03.26', count: 17 },
+];
+
+const successDeals = [
+  { date: '17.02.2026', org: 'Филини мебель', manager: 'Пётр', stage: 'КП отправлено' },
+  { date: '17.02.2026', org: 'Астрапрофиль', manager: 'Пётр', stage: 'КП отправлено' },
+  { date: '09.12.2025', org: 'ООО «ЛинкПринт»', manager: 'Пётр', stage: 'Оплата получена' },
+  { date: '09.12.2025', org: 'ООО «Инжстройбюро» (АстраПрофиль)', manager: 'Алексей', stage: 'Оплата получена' },
+  { date: '16.12.2025', org: 'ООО «ПромКонд»', manager: 'Пётр', stage: 'Оплата получена' },
+  { date: '14.01.2026', org: 'Nestandart.by', manager: 'Пётр', stage: 'Ожидание заказа' },
+  { date: '19.01.2026', org: 'Авхимович Олег (FR)', manager: 'Алексей', stage: 'Оплата получена' },
+  { date: '27.01.2026', org: 'Гамма Компонент', manager: 'Пётр', stage: 'Оплата получена' },
+  { date: '18.02.2026', org: 'Кипер Трейд', manager: 'Пётр', stage: 'Выход на ЛПР' },
+  { date: '19.02.2026', org: '«Полоцк-Стекловолокно»', manager: 'Пётр', stage: 'Оплата получена' },
+  { date: '19.02.2026', org: '«АГРООБОРУДОВАНИЕ»', manager: 'Пётр', stage: 'Лид' },
+  { date: '19.02.2026', org: 'MF', manager: 'Ольга', stage: 'Лид' },
+  { date: '20.02.2026', org: 'ООО Ипкон', manager: 'Пётр', stage: 'Ожидание заказа' },
+  { date: '20.02.2026', org: 'ООО «ИГВИТТА»', manager: 'Пётр', stage: 'Оплата получена' },
+  { date: '20.02.2026', org: 'Стайленд', manager: 'Ольга', stage: 'Лид' },
+  { date: '20.02.2026', org: 'ООО «ГидроСтан»', manager: 'Ольга', stage: 'Оплата получена' },
+  { date: '20.02.2026', org: 'Нудлс', manager: 'Ольга', stage: 'Оплата получена' },
+  { date: '24.02.2026', org: '«Инфокусмедиа»', manager: 'Ольга', stage: 'Оплата получена' },
+  { date: '24.02.2026', org: 'Про удобный офис', manager: 'Ольга', stage: 'Оплата получена' },
+  { date: '24.02.2026', org: 'МК ПозитивМЕ', manager: 'Ольга', stage: 'Оплата получена' },
+];
+
+const rejectDeals = [
+  { date: '17.02.2026', org: 'ООО «Довиани»', manager: 'Пётр', reason: 'Не интересно' },
+  { date: '18.02.2026', org: 'ООО «ТРАДИко»', manager: 'Пётр', reason: 'Мало заказов' },
+  { date: '18.02.2026', org: 'ДТС Маркет', manager: 'Пётр', reason: 'Нецелевой' },
+  { date: '18.02.2026', org: 'Окна CROWN', manager: 'Пётр', reason: 'Нецелевой' },
+  { date: '18.12.2025', org: 'ООО Металлстеллаж', manager: 'Алексей', reason: 'Нецелевой' },
+  { date: '22.12.2025', org: 'ООО «Граф Пит»', manager: 'Алексей', reason: 'Нецелевой' },
+  { date: '23.12.2025', org: 'ООО «СтальСтройИндустрия»', manager: 'Пётр', reason: 'Не интересно' },
+  { date: '23.12.2025', org: '«Випметстрой»', manager: 'Алексей', reason: 'Не интересно' },
+  { date: '24.12.2025', org: 'eliot-avto.by', manager: 'Алексей', reason: 'ЛПР' },
+  { date: '24.12.2025', org: 'su-181.by', manager: 'Алексей', reason: 'Не вышел на ЛПР' },
+  { date: '06.01.2026', org: 'МеталЛофт', manager: 'Алексей', reason: 'ЛПР (конкурент рядом)' },
+  { date: '07.01.2026', org: 'ООО «МебелиБайМ»', manager: 'Алексей', reason: 'Мало заказов' },
+  { date: '—', org: 'ООО «Крафтоп Групп»', manager: 'Пётр', reason: 'ЛПР (конфликт по гибке)' },
+  { date: '14.01.2026', org: 'Бурлуцкий А.С., ИП', manager: 'Алексей', reason: 'Мало заказов' },
+  { date: '27.01.2026', org: 'Артметаллворк', manager: 'Алексей', reason: 'Мало заказов' },
+  { date: '22.01.2026', org: 'Бикон', manager: 'Алексей', reason: 'Не вышел на ЛПР' },
+  { date: '30.01.2026', org: 'ООО «Спортив»', manager: 'Пётр', reason: 'Не интересно' },
+  { date: '30.01.2026', org: 'ИП Суша Александр Николаевич', manager: 'Пётр', reason: 'Дорого' },
+  { date: '17.02.2026', org: 'ЗАО «Беспилотные летательные аппараты»', manager: 'Пётр', reason: 'Нецелевой (нет вальцовки)' },
+  { date: '17.02.2026', org: 'ОАО «Минский домостроительный комбинат»', manager: 'Пётр', reason: 'Не интересно' },
+  { date: '17.02.2026', org: 'УКС Мингорисполкома', manager: 'Пётр', reason: 'Нецелевой' },
+  { date: '17.02.2026', org: 'ИП Захаревич Е.С.', manager: 'Пётр', reason: 'Дорого' },
+  { date: '17.02.2026', org: 'СП «СОФТФОРМ» ООО', manager: 'Пётр', reason: 'ЛПР (не проходят по цене)' },
+  { date: '18.02.2026', org: 'ИП Немцев А.С.', manager: 'Пётр', reason: 'Не интересно' },
+  { date: '18.02.2026', org: 'ИП Цвирко Алексей Александрович', manager: 'Пётр', reason: 'Не интересно' },
+  { date: '18.02.2026', org: 'Тамира строй', manager: 'Пётр', reason: 'ЛПР' },
+  { date: '18.02.2026', org: 'Отис сервис', manager: 'Пётр', reason: 'ЛПР' },
+  { date: '18.02.2026', org: 'Гарантум', manager: 'Пётр', reason: 'Нецелевой' },
+  { date: '18.02.2026', org: 'Промсталь', manager: 'Пётр', reason: 'Не интересно' },
+  { date: '18.02.2026', org: 'Белард логистик', manager: 'Пётр', reason: 'Нецелевой' },
+  { date: '18.02.2026', org: 'Самсвязьстрой', manager: 'Пётр', reason: 'ЛПР' },
+  { date: '18.02.2026', org: '«МебельСоюзКонтакт»', manager: 'Пётр', reason: 'Мало заказов' },
+  { date: '18.02.2026', org: 'Скантек Комфорт', manager: 'Пётр', reason: 'Не интересно' },
+  { date: '19.02.2026', org: 'ЧПУП «ВЛ-Групп»', manager: 'Пётр', reason: 'Не интересно' },
+  { date: '19.02.2026', org: 'КБ Беспилотные Вертолеты', manager: 'Пётр', reason: 'Нецелевой' },
+  { date: '19.02.2026', org: 'ООО «Дрим Дизайн»', manager: 'Пётр', reason: 'ЛПР (работают с соседями)' },
+  { date: '24.02.2026', org: 'Народны майстар', manager: 'Пётр', reason: 'ЛПР (не идёт на контакт)' },
+  { date: '24.02.2026', org: 'ООО «Спецмостстрой»', manager: 'Ольга', reason: '—' },
+  { date: '24.02.2026', org: 'Ремонтно-строительный трест', manager: 'Ольга', reason: 'Не вышел на ЛПР' },
+];
+
+const monthData = [
+  { month: 'дек 2025', count: 21 },
+  { month: 'янв 2026', count: 17 },
+  { month: 'фев 2026', count: 112 },
+];
+
+const calcData = [
+  { name: 'Просчёт сделан', value: 46, color: '#4c8c5b' },
+  { name: 'Просчёта нет', value: 87, color: '#c98a3e' },
+  { name: 'Не указано', value: 18, color: '#9a9284' },
+];
+
+const stageStatusStack = [
+  { stage: 'Лид', 'В работе': 67, 'Отказ': 25, 'Успех': 3 },
+  { stage: 'КП отправлено', 'В работе': 17, 'Отказ': 4, 'Успех': 2 },
+  { stage: 'Ожидание заказа', 'В работе': 7, 'Отказ': 7, 'Успех': 2 },
+  { stage: 'Выход на ЛПР', 'В работе': 2, 'Отказ': 2, 'Успех': 1 },
+  { stage: 'Оплата получена', 'В работе': 0, 'Отказ': 0, 'Успех': 12 },
+];
+
+const TOTAL = 151;
+const SUCCESS = 20;
+const REJECT = 38;
+const INWORK = 93;
+
+const ink = '#2a2724';
+const paper = '#f6f3ec';
+const line = '#ddd6c8';
+const steel = '#3b6e8f';
+const rust = '#c98a3e';
+
+function Card({ children, className = '' }) {
+  return (
+    <div className={`bg-white border border-[#e4ddcd] rounded-sm ${className}`} style={{ boxShadow: '0 1px 0 rgba(0,0,0,0.03)' }}>
+      {children}
+    </div>
+  );
+}
+
+function KPI({ label, value, sub, accent }) {
+  return (
+    <Card className="p-5 flex-1 min-w-[150px]">
+      <div className="text-[11px] uppercase tracking-wider" style={{ color: '#8a8272', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>{label}</div>
+      <div className="text-3xl mt-1" style={{ color: ink, fontWeight: 600, fontFamily: 'Georgia, serif' }}>{value}</div>
+      {sub && <div className="text-xs mt-1" style={{ color: accent || '#8a8272' }}>{sub}</div>}
+    </Card>
+  );
+}
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div style={{ background: ink, color: paper, padding: '8px 12px', fontSize: 12, borderRadius: 2 }}>
+      <div style={{ opacity: 0.7, marginBottom: 4 }}>{label}</div>
+      {payload.map((p, i) => (
+        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+          <span>{p.name}:</span><span style={{ fontWeight: 600 }}>{p.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+function DealsTable({ deals, kind }) {
+  const [query, setQuery] = useState('');
+  const [managerFilter, setManagerFilter] = useState('Все');
+  const managers = useMemo(() => ['Все', ...Array.from(new Set(deals.map(d => d.manager)))], [deals]);
+
+  const filtered = useMemo(() => {
+    return deals.filter(d => {
+      const matchesQuery = query.trim() === '' || d.org.toLowerCase().includes(query.toLowerCase());
+      const matchesManager = managerFilter === 'Все' || d.manager === managerFilter;
+      return matchesQuery && matchesManager;
+    });
+  }, [deals, query, managerFilter]);
+
+  const accent = kind === 'success' ? '#4c8c5b' : '#b04a3f';
+
+  return (
+    <Card className="p-5">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div className="text-sm" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>
+          {kind === 'success' ? 'СДЕЛКИ В УСПЕХЕ' : 'СДЕЛКИ В ОТКАЗЕ'} · {filtered.length} из {deals.length}
+        </div>
+        <div className="flex gap-2">
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Поиск по компании..."
+            className="text-xs px-2 py-1 rounded-sm outline-none"
+            style={{ border: `1px solid ${line}`, background: paper }}
+          />
+          <select
+            value={managerFilter}
+            onChange={e => setManagerFilter(e.target.value)}
+            className="text-xs px-2 py-1 rounded-sm outline-none"
+            style={{ border: `1px solid ${line}`, background: paper }}
+          >
+            {managers.map(m => <option key={m} value={m}>{m}</option>)}
+          </select>
+        </div>
+      </div>
+      <div className="overflow-auto" style={{ maxHeight: 420 }}>
+        <table className="w-full text-xs" style={{ borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: `1px solid ${line}` }}>
+              <th className="text-left py-2 pr-3" style={{ color: '#8a8272', fontWeight: 500 }}>Дата</th>
+              <th className="text-left py-2 pr-3" style={{ color: '#8a8272', fontWeight: 500 }}>Компания</th>
+              <th className="text-left py-2 pr-3" style={{ color: '#8a8272', fontWeight: 500 }}>Менеджер</th>
+              <th className="text-left py-2 pr-3" style={{ color: '#8a8272', fontWeight: 500 }}>{kind === 'success' ? 'Этап' : 'Причина'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((d, i) => (
+              <tr key={i} style={{ borderBottom: `1px solid ${line}` }}>
+                <td className="py-2 pr-3" style={{ color: '#8a8272', whiteSpace: 'nowrap' }}>{d.date}</td>
+                <td className="py-2 pr-3" style={{ fontWeight: 500 }}>{d.org}</td>
+                <td className="py-2 pr-3">{d.manager}</td>
+                <td className="py-2 pr-3" style={{ color: accent }}>{kind === 'success' ? d.stage : d.reason}</td>
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr><td colSpan={4} className="py-4 text-center" style={{ color: '#8a8272' }}>Ничего не найдено</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
+function Dashboard() {
+  const [tab, setTab] = useState('overview');
+
+  const convRate = ((SUCCESS / TOTAL) * 100).toFixed(1);
+  const rejectRate = ((REJECT / TOTAL) * 100).toFixed(1);
+
+  return (
+    <div style={{ background: paper, minHeight: '100%', fontFamily: 'Inter, system-ui, sans-serif', color: ink }} className="p-6">
+      <div className="max-w-6xl mx-auto">
+
+        {/* Header */}
+        <div className="flex items-baseline justify-between border-b pb-4 mb-6" style={{ borderColor: line }}>
+          <div>
+            <div className="text-[11px] uppercase tracking-widest" style={{ color: rust, fontFamily: 'ui-monospace, monospace' }}>TFC · Коммерческий отдел</div>
+            <h1 className="text-2xl mt-1" style={{ fontFamily: 'Georgia, serif', fontWeight: 700 }}>Воронка продаж — дашборд</h1>
+          </div>
+          <div className="text-right text-xs" style={{ color: '#8a8272' }}>
+            <div>Период: дек 2025 – фев 2026</div>
+            <div>Всего сделок: {TOTAL}</div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-1 mb-6">
+          {[
+            ['overview', 'Обзор'],
+            ['funnel', 'Динамика недель'],
+            ['managers', 'Менеджеры'],
+            ['deals', 'Успех / Отказ'],
+          ].map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              className="px-4 py-2 text-sm rounded-sm transition-colors"
+              style={{
+                background: tab === key ? ink : 'transparent',
+                color: tab === key ? paper : ink,
+                border: `1px solid ${tab === key ? ink : line}`,
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {tab === 'overview' && (
+          <>
+            {/* KPIs */}
+            <div className="flex gap-3 flex-wrap mb-6">
+              <KPI label="Всего в воронке" value={TOTAL} />
+              <KPI label="В работе" value={INWORK} sub={`${((INWORK/TOTAL)*100).toFixed(0)}% от всех`} accent={steel} />
+              <KPI label="Успех" value={SUCCESS} sub={`конверсия ${convRate}%`} accent="#4c8c5b" />
+              <KPI label="Отказ" value={REJECT} sub={`${rejectRate}% отвалов`} accent="#b04a3f" />
+              <KPI label="Просчётов сделано" value={46} sub="из 133 указанных" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              {/* Stage funnel */}
+              <Card className="p-5 col-span-2">
+                <div className="text-sm mb-3" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>ЭТАПЫ ВОРОНКИ (кол-во сделок)</div>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={stageData} layout="vertical" margin={{ left: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={line} horizontal={false} />
+                    <XAxis type="number" tick={{ fontSize: 11, fill: '#8a8272' }} axisLine={{ stroke: line }} />
+                    <YAxis type="category" dataKey="stage" tick={{ fontSize: 12, fill: ink }} width={130} axisLine={{ stroke: line }} />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                    <Bar dataKey="count" fill={steel} radius={[0, 3, 3, 0]}>
+                      <LabelList dataKey="count" position="right" style={{ fontSize: 12, fill: ink, fontWeight: 600 }} />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              {/* Status pie */}
+              <Card className="p-5">
+                <div className="text-sm mb-3" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>СТАТУС СДЕЛОК</div>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie data={statusData} dataKey="value" nameKey="name" innerRadius={45} outerRadius={75} paddingAngle={2}>
+                      {statusData.map((d, i) => <Cell key={i} fill={d.color} />)}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex flex-col gap-1 mt-2">
+                  {statusData.map((d, i) => (
+                    <div key={i} className="flex items-center justify-between text-xs">
+                      <span className="flex items-center gap-2"><span style={{ width: 8, height: 8, background: d.color, display: 'inline-block', borderRadius: 2 }}></span>{d.name}</span>
+                      <span style={{ fontWeight: 600 }}>{d.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              {/* Channel pie */}
+              <Card className="p-5">
+                <div className="text-sm mb-3" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>КАНАЛ ПРИВЛЕЧЕНИЯ</div>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie data={channelData} dataKey="value" nameKey="name" innerRadius={45} outerRadius={75} paddingAngle={2}>
+                      {channelData.map((d, i) => <Cell key={i} fill={d.color} />)}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex flex-col gap-1 mt-2">
+                  {channelData.map((d, i) => (
+                    <div key={i} className="flex items-center justify-between text-xs">
+                      <span className="flex items-center gap-2"><span style={{ width: 8, height: 8, background: d.color, display: 'inline-block', borderRadius: 2 }}></span>{d.name}</span>
+                      <span style={{ fontWeight: 600 }}>{d.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              {/* Calc pie */}
+              <Card className="p-5">
+                <div className="text-sm mb-3" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>ПРОСЧЁТЫ ЗАКАЗОВ</div>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie data={calcData} dataKey="value" nameKey="name" innerRadius={45} outerRadius={75} paddingAngle={2}>
+                      {calcData.map((d, i) => <Cell key={i} fill={d.color} />)}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex flex-col gap-1 mt-2">
+                  {calcData.map((d, i) => (
+                    <div key={i} className="flex items-center justify-between text-xs">
+                      <span className="flex items-center gap-2"><span style={{ width: 8, height: 8, background: d.color, display: 'inline-block', borderRadius: 2 }}></span>{d.name}</span>
+                      <span style={{ fontWeight: 600 }}>{d.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+
+            <Card className="p-5 mt-4">
+              <div className="text-sm mb-3" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>НОВЫЕ СДЕЛКИ ПО МЕСЯЦАМ (дата первого контакта)</div>
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={monthData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={line} vertical={false} />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: ink }} axisLine={{ stroke: line }} />
+                  <YAxis tick={{ fontSize: 11, fill: '#8a8272' }} axisLine={{ stroke: line }} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                  <Bar dataKey="count" fill={rust} radius={[3, 3, 0, 0]}>
+                    <LabelList dataKey="count" position="top" style={{ fontSize: 12, fill: ink, fontWeight: 600 }} />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="text-xs mt-2" style={{ color: '#8a8272' }}>Резкий рост в феврале — активная работа по базе (94 сделки из базы vs 57 самостоятельный поиск).</div>
+            </Card>
+          </>
+        )}
+
+        {tab === 'funnel' && (
+          <>
+            <Card className="p-5 mb-4">
+              <div className="text-sm mb-3" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>НОВЫЕ ЛИДЫ ПО НЕДЕЛЯМ (по дате первого контакта из детального списка сделок)</div>
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={newLeadsWeekly}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={line} vertical={false} />
+                  <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#8a8272' }} axisLine={{ stroke: line }} angle={-20} textAnchor="end" height={50} />
+                  <YAxis tick={{ fontSize: 11, fill: '#8a8272' }} axisLine={{ stroke: line }} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                  <Bar dataKey="count" name="Новых лидов" fill={steel} radius={[3, 3, 0, 0]}>
+                    <LabelList dataKey="count" position="top" style={{ fontSize: 11, fill: ink, fontWeight: 600 }} />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="text-xs mt-2" style={{ color: '#8a8272' }}>
+                Скачок 16–22.02 (95 лидов) — не органический поток, а массовая выгрузка/добавление базы одной датой. Официальный столбец «Кол-во новых лидов» в сводном недельном блоке таблицы не заполняется (везде 0) — если хочешь, чтобы график шёл именно оттуда, надо начать вносить туда цифры.
+              </div>
+            </Card>
+
+            <div className="text-xs mb-4 px-1" style={{ color: '#8a8272' }}>Ниже — данные из отдельного сводного еженедельного блока таблицы (лист «воронка холода»). Заполнены 4 недели — 16.03 по 12.04.</div>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <Card className="p-5">
+                <div className="text-sm mb-3" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>ВСЕГО В ВОРОНКЕ НА КОНЕЦ НЕДЕЛИ</div>
+                <ResponsiveContainer width="100%" height={240}>
+                  <LineChart data={weeklyFunnel}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={line} vertical={false} />
+                    <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#8a8272' }} axisLine={{ stroke: line }} />
+                    <YAxis tick={{ fontSize: 11, fill: '#8a8272' }} axisLine={{ stroke: line }} domain={[80, 140]} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Line type="monotone" dataKey="inFunnel" name="В воронке" stroke={steel} strokeWidth={2.5} dot={{ r: 4, fill: steel }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Card>
+
+              <Card className="p-5">
+                <div className="text-sm mb-3" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>ПЕРЕВЕДЕНО В УСПЕХ / ОТКАЗ ПО НЕДЕЛЯМ</div>
+                <ResponsiveContainer width="100%" height={240}>
+                  <BarChart data={weeklyFunnel}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={line} vertical={false} />
+                    <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#8a8272' }} axisLine={{ stroke: line }} />
+                    <YAxis tick={{ fontSize: 11, fill: '#8a8272' }} axisLine={{ stroke: line }} />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <Bar dataKey="toSuccess" name="В успех" fill="#4c8c5b" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="toReject" name="В отказ" fill="#b04a3f" radius={[3, 3, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Card>
+            </div>
+
+            <Card className="p-5">
+              <div className="text-sm mb-3" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>КОЛИЧЕСТВО ПРОСЧЁТОВ ПО НЕДЕЛЯМ</div>
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={weeklyFunnel}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={line} vertical={false} />
+                  <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#8a8272' }} axisLine={{ stroke: line }} />
+                  <YAxis tick={{ fontSize: 11, fill: '#8a8272' }} axisLine={{ stroke: line }} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                  <Bar dataKey="calcs" name="Просчётов" fill={rust} radius={[3, 3, 0, 0]}>
+                    <LabelList dataKey="calcs" position="top" style={{ fontSize: 12, fill: ink, fontWeight: 600 }} />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="text-xs mt-2" style={{ color: '#8a8272' }}>Данные за 30.03–12.04 не заполнены в источнике — новых лидов 0 все 4 недели подряд, стоит проверить, вносятся ли данные вовремя.</div>
+            </Card>
+          </>
+        )}
+
+        {tab === 'managers' && (
+          <>
+            <Card className="p-5 mb-4">
+              <div className="text-sm mb-3" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>СТАТУС СДЕЛОК ПО МЕНЕДЖЕРАМ</div>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={managerData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={line} vertical={false} />
+                  <XAxis dataKey="manager" tick={{ fontSize: 12, fill: ink }} axisLine={{ stroke: line }} />
+                  <YAxis tick={{ fontSize: 11, fill: '#8a8272' }} axisLine={{ stroke: line }} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <Bar dataKey="В работе" stackId="a" fill={steel} />
+                  <Bar dataKey="Успех" stackId="a" fill="#4c8c5b" />
+                  <Bar dataKey="Отказ" stackId="a" fill="#b04a3f" radius={[3, 3, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+
+            <Card className="p-5">
+              <div className="text-sm mb-3" style={{ color: '#8a8272', fontFamily: 'ui-monospace, monospace' }}>ЭТАП × СТАТУС (где застревают сделки)</div>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={stageStatusStack} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke={line} horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: '#8a8272' }} axisLine={{ stroke: line }} />
+                  <YAxis type="category" dataKey="stage" tick={{ fontSize: 11, fill: ink }} width={120} axisLine={{ stroke: line }} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <Bar dataKey="В работе" stackId="a" fill={steel} />
+                  <Bar dataKey="Успех" stackId="a" fill="#4c8c5b" />
+                  <Bar dataKey="Отказ" stackId="a" fill="#b04a3f" />
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="text-xs mt-2" style={{ color: '#8a8272' }}>67 сделок висят на этапе "Лид" в статусе "В работе" — самое узкое место воронки, стоит продвигать их до КП.</div>
+            </Card>
+          </>
+        )}
+
+        {tab === 'deals' && (
+          <div className="grid grid-cols-2 gap-4">
+            <DealsTable deals={successDeals} kind="success" />
+            <DealsTable deals={rejectDeals} kind="reject" />
+          </div>
+        )}
+
+        <div className="text-xs mt-6 pt-4 border-t" style={{ borderColor: line, color: '#8a8272' }}>
+          Источник: Google Sheet «Воронка продаж TFC». Цифры пересчитаны на момент выгрузки — для автообновления нужен рабочий Google Drive/Sheets коннектор.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<Dashboard />);
+
+</script>
+</body>
+</html>
